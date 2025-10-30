@@ -12,7 +12,7 @@ export const a2aAgentRoute = registerApiRoute("/a2a/agent/:agentId", {
       const body = await c.req.json();
       const { jsonrpc, id: requestId, method, params } = body;
 
-      if (jsonrpc !== "2.0" || requestId) {
+      if (jsonrpc !== "2.0" || !requestId) {
         return c.json(
           {
             jsonrpc: "2.0",
@@ -97,7 +97,7 @@ export const a2aAgentRoute = registerApiRoute("/a2a/agent/:agentId", {
           role: msg.role,
           parts: msg.parts,
           messageId: msg.messageId || randomUUID(),
-          taskId: msg.taskId || taskId || randomUUID,
+          taskId: msg.taskId || taskId || randomUUID(),
         })),
         {
           kind: "message",
