@@ -1,3 +1,4 @@
+import { Message } from "@mastra/core/a2a";
 import { registerApiRoute } from "@mastra/core/server";
 import { randomUUID } from "crypto";
 
@@ -52,7 +53,7 @@ export const a2aAgentRoute = registerApiRoute("/a2a/agent/:agentId", {
       }
 
       // Convert A2A messages to Mastra format
-      const mastraMessages = messagesList.map((msg) => ({
+      const mastraMessages = messagesList.map((msg: Message) => ({
         role: msg.role,
         content:
           msg.parts
@@ -64,7 +65,9 @@ export const a2aAgentRoute = registerApiRoute("/a2a/agent/:agentId", {
             .join("\n") || "",
       }));
 
-      const response = await agent.generate(mastraMessages);
+      const response = await agent.generate(
+        mastraMessages.map((msg) => `${msg.role}: ${msg.content}`)
+      );
       const agentText = response.text || "";
 
       const artifacts = [
@@ -84,9 +87,10 @@ export const a2aAgentRoute = registerApiRoute("/a2a/agent/:agentId", {
         artifacts.push({
           artifactId: randomUUID(),
           name: "ToolResults",
+          //@ts-ignore
           parts: response.toolResults.map((result) => ({
             kind: "data",
-            data: result,
+            text: result,
           })),
         });
       }

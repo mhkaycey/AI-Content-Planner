@@ -1,13 +1,7 @@
 import { Mastra } from "@mastra/core/mastra";
 import { PinoLogger } from "@mastra/loggers";
 import { LibSQLStore } from "@mastra/libsql";
-import { contentPlannerWorkflow } from "./workflows/contentPlannerWorkflow";
 import { contentPlannerAgent } from "./agents/contentPlannerAgent";
-import {
-  toolCallAppropriatenessScorer,
-  completenessScorer,
-  relevanceScorer,
-} from "./scores/contentPlannerScores";
 import { a2aAgentRoute } from "./a2a_route/a2aRouteHandler";
 
 export const mastra = new Mastra({

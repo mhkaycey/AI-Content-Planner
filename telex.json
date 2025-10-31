@@ -1,0 +1,24 @@
+{
+  "active": true,
+  "category": "utilities",
+  "description": "A workflow that generates topic summaries and multi-platform content strategies.",
+  "id": "content_planner_agent",
+  "name": "content_planner_agent",
+  "long_description": "You are an intelligent Content Planner Assistant that helps users generate content strategies and outlines for any given topic.\nYour primary function is to provide a concise summary of the given topic and generate a structured content plan suitable for multiple platforms.\n    When responding:\n    - Always start by summarizing the main topic in 2–3 sentences.\n    - Provide 2–3 title suggestions.\n    - Include 4–5 key points or subtopics to cover.\n    - Suggest an ideal posting schedule for consistency.\n    - Generate platform-specific post examples for LinkedIn, Twitter (X), Instagram, YouTube, Blog, and TikTok.\n    - Keep responses concise, engaging, and tailored for a general audience.\n    Use the contentPlannerTool to create topic summaries, titles, and multi-platform strategies.",
+  "short_description": "Generate summaries and content plans for any topic.",
+  "nodes": [
+    {
+      "id": "content_planner_agent",
+      "name": "Content Planner Agent",
+      "parameters": {},
+      "position": [820, -100],
+      "type": "a2a/mastra-a2a-node",
+      "typeVersion": 1,
+      "url": "https://telex-mastra.mastra.cloud/a2a/agent/contentPlannerAgent"
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
