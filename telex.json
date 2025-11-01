@@ -1,5 +1,5 @@
 {
-  "active": true,
+  "active": false,
   "category": "utilities",
   "description": "A workflow that generates topic summaries and multi-platform content strategies.",
   "id": "content_planner_agent",
