@@ -1,4 +1,4 @@
-import { Message } from "@mastra/core/a2a";
+// import { Message } from "@mastra/core/a2a";
 import { registerApiRoute } from "@mastra/core/server";
 import { randomUUID } from "crypto";
 
@@ -53,11 +53,11 @@ export const a2aAgentRoute = registerApiRoute("/a2a/agent/:agentId", {
       }
 
       // Convert A2A messages to Mastra format
-      const mastraMessages = messagesList.map((msg: Message) => ({
+      const mastraMessages = messagesList.map((msg) => ({
         role: msg.role,
         content:
           msg.parts
-            ?.map((part) => {
+            ?.map((part: any) => {
               if (part.kind === "text") return part.text;
               if (part.kind === "data") return JSON.stringify(part.data);
               return "";
@@ -65,17 +65,19 @@ export const a2aAgentRoute = registerApiRoute("/a2a/agent/:agentId", {
             .join("\n") || "",
       }));
 
-      const response = await agent.generate(
-        mastraMessages.map((msg) => `${msg.role}: ${msg.content}`)
-      );
+      // Execute agent
+      // const response = await agent.generate(
+      //   mastraMessages.map((msg) => `${msg.role}: ${msg.content}`)
+      // );
+
+      const response = await agent.generate(mastraMessages);
       const agentText = response.text || "";
 
+      // Convert Mastra response to A2A format and Build artifacts
       const artifacts = [
         {
           artifactId: randomUUID(),
           role: `${agentId}Response`,
-          description: "Agent response",
-
           parts: [
             {
               kind: "text",
@@ -85,18 +87,20 @@ export const a2aAgentRoute = registerApiRoute("/a2a/agent/:agentId", {
         },
       ];
 
+      //add tool results as artifacts
+
       if (response.toolResults && response.toolResults.length > 0) {
         artifacts.push({
           artifactId: randomUUID(),
           name: "ToolResults",
           //@ts-ignore
-          parts: response.toolResults.map((result) => ({
-            kind: "text",
-            text: result,
+          parts: response.toolResults.map((result: any) => ({
+            kind: "data",
+            data: result,
           })),
         });
       }
-
+      // Build conversation history
       const history = [
         ...messagesList.map((msg) => ({
           kind: "message",

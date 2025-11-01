@@ -15,14 +15,14 @@ export const mastra = new Mastra({
   },
   logger: new PinoLogger({
     name: "Mastra",
-    level: "debug",
+    level: "info",
   }),
 
   server: {
+    apiRoutes: [a2aAgentRoute],
     build: {
       openAPIDocs: true,
       swaggerUI: true,
     },
-    apiRoutes: [a2aAgentRoute],
   },
 });
