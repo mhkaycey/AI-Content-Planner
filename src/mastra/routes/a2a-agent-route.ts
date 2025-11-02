@@ -104,7 +104,7 @@ export const a2aAgentRoute = registerApiRoute("/a2a/agent/:agentId", {
           })),
         });
 
-        console.log("tool results", response.toolResults);
+        // console.log("tool results", response.toolResults);
       }
       // Build conversation history
       const history = [
