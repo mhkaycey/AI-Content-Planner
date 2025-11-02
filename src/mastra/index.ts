@@ -2,7 +2,7 @@ import { Mastra } from "@mastra/core/mastra";
 import { PinoLogger } from "@mastra/loggers";
 import { LibSQLStore } from "@mastra/libsql";
 import { contentPlannerAgent } from "./agents/contentPlannerAgent";
-import { a2aAgentRoute } from "./a2a_route/a2aRouteHandler";
+import { a2aAgentRoute } from "./routes/a2a-agent-route";
 
 export const mastra = new Mastra({
   agents: { contentPlannerAgent },
@@ -15,7 +15,7 @@ export const mastra = new Mastra({
   },
   logger: new PinoLogger({
     name: "Mastra",
-    level: "info",
+    level: "debug",
   }),
 
   server: {

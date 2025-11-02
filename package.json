@@ -6,17 +6,23 @@
     "start": "mastra start"
   },
   "type": "module",
+  "engines": {
+    "node": ">=20.9.0"
+  },
   "dependencies": {
-    "@google/generative-ai": "^0.24.1",
-    "@mastra/core": "^0.23.1",
+    "@mastra/core": "^0.23.3",
     "@mastra/evals": "^0.14.2",
     "@mastra/libsql": "^0.16.1",
     "@mastra/loggers": "^0.10.18",
     "@mastra/memory": "^0.15.9",
     "crypto": "^1.0.1",
     "dotenv": "^17.2.3",
+    "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "@types/node": "^24.9.1",
     "mastra": "^0.17.5",
-    "zod": "^3.25.76"
+    "typescript": "^5.9.3"
   },
   "packageManager": "pnpm@10.20.0+sha512.cf9998222162dd85864d0a8102e7892e7ba4ceadebbf5a31f9c2fce48dfce317a9c53b9f6464d1ef9042cba2e02ae02a9f7c143a2b438cd93c91840f0192b9dd"
 }

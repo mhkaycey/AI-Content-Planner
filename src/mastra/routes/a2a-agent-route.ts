@@ -10,8 +10,12 @@ export const a2aAgentRoute = registerApiRoute("/a2a/agent/:agentId", {
 
       const agentId = c.req.param("agentId");
 
+      // Parse JSON-RPC 2.0 request
+
       const body = await c.req.json();
       const { jsonrpc, id: requestId, method, params } = body;
+
+      // Validate JSON-RPC 2.0 format
 
       if (jsonrpc !== "2.0" || !requestId) {
         return c.json(
@@ -43,6 +47,8 @@ export const a2aAgentRoute = registerApiRoute("/a2a/agent/:agentId", {
         );
       }
 
+      // Extract messages from params
+
       const { message, messages, contextId, taskId, metadata } = params || {};
 
       let messagesList = [];
@@ -66,9 +72,6 @@ export const a2aAgentRoute = registerApiRoute("/a2a/agent/:agentId", {
       }));
 
       // Execute agent
-      // const response = await agent.generate(
-      //   mastraMessages.map((msg) => `${msg.role}: ${msg.content}`)
-      // );
 
       const response = await agent.generate(mastraMessages);
       const agentText = response.text || "";
