@@ -97,11 +97,14 @@ export const a2aAgentRoute = registerApiRoute("/a2a/agent/:agentId", {
           artifactId: randomUUID(),
           name: "ToolResults",
           //@ts-ignore
-          parts: response.toolResults.map((result: any) => ({
+          parts: response.toolResults.map((result) => ({
             kind: "data",
+            text: result,
             data: result,
           })),
         });
+
+        console.log("tool results", response.toolResults);
       }
       // Build conversation history
       const history = [
