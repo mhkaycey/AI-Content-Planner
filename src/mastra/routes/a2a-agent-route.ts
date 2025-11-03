@@ -32,20 +32,6 @@ export const a2aAgentRoute = registerApiRoute("/a2a/agent/:agentId", {
         );
       }
 
-      if (method !== "a2a.message") {
-        return c.json(
-          {
-            jsonrpc: "2.0",
-            id: requestId,
-            error: {
-              code: -32601,
-              message: `Unsupported method '${method}', expected 'a2a.message'`,
-            },
-          },
-          400
-        );
-      }
-
       const agent = mastra.getAgent(agentId);
       if (!agent) {
         return c.json(
