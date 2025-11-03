@@ -32,6 +32,20 @@ export const a2aAgentRoute = registerApiRoute("/a2a/agent/:agentId", {
         );
       }
 
+      if (method !== "a2a.message") {
+        return c.json(
+          {
+            jsonrpc: "2.0",
+            id: requestId,
+            error: {
+              code: -32601,
+              message: `Unsupported method '${method}', expected 'a2a.message'`,
+            },
+          },
+          400
+        );
+      }
+
       const agent = mastra.getAgent(agentId);
       if (!agent) {
         return c.json(
@@ -76,6 +90,18 @@ export const a2aAgentRoute = registerApiRoute("/a2a/agent/:agentId", {
       const response = await agent.generate(mastraMessages);
       const agentText = response.text || "";
 
+      const responseMessage = {
+        messageId: randomUUID(),
+        role: "agent",
+        parts: [
+          {
+            kind: "text",
+            text: agentText,
+          },
+        ],
+        kind: "message",
+      };
+
       // Convert Mastra response to A2A format and Build artifacts
       const artifacts = [
         {
@@ -99,7 +125,7 @@ export const a2aAgentRoute = registerApiRoute("/a2a/agent/:agentId", {
           //@ts-ignore
           parts: response.toolResults.map((result) => ({
             kind: "data",
-            text: result,
+
             data: result,
           })),
         });
@@ -133,31 +159,41 @@ export const a2aAgentRoute = registerApiRoute("/a2a/agent/:agentId", {
         jsonrpc: "2.0",
         id: requestId,
         result: {
-          id: taskId || randomUUID(),
-          contextId: contextId || randomUUID(),
-
-          status: {
+          task: {
+            id: taskId ?? randomUUID(),
+            contextId: contextId ?? randomUUID(),
             status: "completed",
             timestamp: new Date().toISOString(),
-            message: {
-              messageId: randomUUID(),
-              role: "agent",
-              parts: [
-                {
-                  kind: "text",
-                  text: agentText,
-                },
-              ],
-              kind: "message",
-            },
           },
-
+          messages: [responseMessage],
           artifacts,
-          history,
-
-          //   metadata,
-          kind: "task",
         },
+        // result: {
+        //   id: taskId || randomUUID(),
+        //   contextId: contextId || randomUUID(),
+
+        //   status: {
+        //     status: "completed",
+        //     timestamp: new Date().toISOString(),
+        //     message: {
+        //       messageId: randomUUID(),
+        //       role: "agent",
+        //       parts: [
+        //         {
+        //           kind: "text",
+        //           text: agentText,
+        //         },
+        //       ],
+        //       kind: "message",
+        //     },
+        //   },
+
+        //   artifacts,
+        //   history,
+
+        //   //   metadata,
+        //   kind: "task",
+        // },
       });
     } catch (error) {
       return c.json(
