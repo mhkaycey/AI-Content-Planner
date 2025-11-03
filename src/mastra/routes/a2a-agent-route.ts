@@ -76,23 +76,23 @@ export const a2aAgentRoute = registerApiRoute("/a2a/agent/:agentId", {
       const response = await agent.generate(mastraMessages);
       const agentText = response.text || "";
 
-      const responseMessage = {
-        messageId: randomUUID(),
-        role: "agent",
-        parts: [
-          {
-            kind: "text",
-            text: agentText,
-          },
-        ],
-        kind: "message",
-      };
+      // const responseMessage = {
+      //   messageId: randomUUID(),
+      //   role: "agent",
+      //   parts: [
+      //     {
+      //       kind: "text",
+      //       text: agentText,
+      //     },
+      //   ],
+      //   kind: "message",
+      // };
 
       // Convert Mastra response to A2A format and Build artifacts
       const artifacts = [
         {
           artifactId: randomUUID(),
-          role: `${agentId}Response`,
+          name: `${agentId}Response`,
           parts: [
             {
               kind: "text",
@@ -111,7 +111,6 @@ export const a2aAgentRoute = registerApiRoute("/a2a/agent/:agentId", {
           //@ts-ignore
           parts: response.toolResults.map((result) => ({
             kind: "data",
-
             data: result,
           })),
         });
@@ -145,41 +144,28 @@ export const a2aAgentRoute = registerApiRoute("/a2a/agent/:agentId", {
         jsonrpc: "2.0",
         id: requestId,
         result: {
-          task: {
-            id: taskId ?? randomUUID(),
-            contextId: contextId ?? randomUUID(),
+          id: taskId ?? randomUUID(),
+          contextId: contextId ?? randomUUID(),
+          status: {
             status: "completed",
             timestamp: new Date().toISOString(),
+            message: {
+              messageId: randomUUID(),
+              role: "agent",
+              parts: [
+                {
+                  kind: "text",
+                  text: agentText,
+                },
+              ],
+              kind: "message",
+            },
           },
-          messages: [responseMessage],
+
+          history,
           artifacts,
+          kind: "task",
         },
-        // result: {
-        //   id: taskId || randomUUID(),
-        //   contextId: contextId || randomUUID(),
-
-        //   status: {
-        //     status: "completed",
-        //     timestamp: new Date().toISOString(),
-        //     message: {
-        //       messageId: randomUUID(),
-        //       role: "agent",
-        //       parts: [
-        //         {
-        //           kind: "text",
-        //           text: agentText,
-        //         },
-        //       ],
-        //       kind: "message",
-        //     },
-        //   },
-
-        //   artifacts,
-        //   history,
-
-        //   //   metadata,
-        //   kind: "task",
-        // },
       });
     } catch (error) {
       return c.json(
