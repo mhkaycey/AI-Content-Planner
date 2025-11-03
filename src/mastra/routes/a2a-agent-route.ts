@@ -1,6 +1,6 @@
 // import { Message } from "@mastra/core/a2a";
 import { registerApiRoute } from "@mastra/core/server";
-import { randomUUID } from "crypto";
+import { randomUUID } from "node:crypto";
 
 export const a2aAgentRoute = registerApiRoute("/a2a/agent/:agentId", {
   method: "POST",
