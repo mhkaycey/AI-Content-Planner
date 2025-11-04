@@ -1,12 +1,9 @@
 import { createTool } from "@mastra/core/tools";
 import { z } from "zod";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import dotenv from 'dotenv';
+import dotenv from "dotenv";
 
 dotenv.config();
-
-
-
 
 export const contentPlannerTool = createTool({
   id: "contentPlannerTool",
@@ -63,7 +60,7 @@ export const contentPlannerTool = createTool({
 
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({
-      model: "gemini-2.0-flash-exp",
+      model: "gemini-2.5-flash",
     });
 
     // Build dynamic prompt based on available context
@@ -171,3 +168,130 @@ CRITICAL REQUIREMENTS:
     }
   },
 });
+
+// import { createTool } from "@mastra/core/tools";
+// import { z } from "zod";
+// import { GoogleGenerativeAI } from "@google/generative-ai";
+// import dotenv from "dotenv";
+
+// dotenv.config();
+
+// const GENAI_API_KEY = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+// if (!GENAI_API_KEY) throw new Error("Missing GOOGLE_GENERATIVE_AI_API_KEY");
+
+// const genAI = new GoogleGenerativeAI(GENAI_API_KEY);
+// const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+
+// const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// async function callGemini(prompt: string, retries = 3): Promise<string> {
+//   for (let attempt = 1; attempt <= retries; attempt++) {
+//     try {
+//       const result = await model.generateContent(prompt);
+//       return result.response.text().trim();
+//     } catch (error) {
+//       if (attempt < retries) {
+//         console.warn(`Gemini error, retrying (${attempt}/${retries})...`);
+//         await delay(1000 * attempt);
+//       } else {
+//         throw error;
+//       }
+//     }
+//   }
+//   throw new Error("Failed to call Gemini after retries.");
+// }
+
+// export const contentPlannerTool = createTool({
+//   id: "content-planner",
+//   description: `
+// Generate a multi-platform content strategy with summaries, hooks, titles, posting schedule, and platform-specific ideas for Instagram, TikTok, YouTube, LinkedIn, X, Blogs & Threads.`,
+
+//   inputSchema: z.object({
+//     topic: z.string().describe("The main topic or niche for the content plan"),
+//     targetAudience: z
+//       .string()
+//       .optional()
+//       .describe("Optional: who the content is for"),
+//     contentGoal: z
+//       .string()
+//       .optional()
+//       .describe("Optional: e.g., awareness, engagement, conversions"),
+//   }),
+
+//   outputSchema: z.object({
+//     summary: z.string(),
+//     titleSuggestions: z.array(z.string()),
+//     keyPoints: z.array(z.string()),
+//     schedule: z.string(),
+//     platformPosts: z.record(z.string(), z.string()),
+//   }),
+
+//   execute: async ({ context }) => {
+//     const { topic, targetAudience, contentGoal } = context;
+
+//     const contextInfo = `
+// Topic: "${topic}"
+// ${targetAudience ? `Target Audience: ${targetAudience}` : ""}
+// ${contentGoal ? `Content Goal: ${contentGoal}` : ""}
+// `;
+
+//     const prompt = `
+// You are an expert content strategist specializing in multi-platform content planning.
+
+// Generate a comprehensive and actionable content plan based on the context below.
+
+// ${contextInfo}
+
+// Return ONLY raw JSON. No markdown, no code fences, no explanations.
+
+// Structure strictly as follows:
+
+// {
+//   "summary": "2-3 sentence strategic overview explaining why this topic is valuable and timely",
+//   "titleSuggestions": ["5 engaging, platform-agnostic content title ideas"],
+//   "keyPoints": ["6-8 talking points, content angles, or subtopics"],
+//   "schedule": "Posting frequency, best days/times, content mix strategy",
+//   "platformPosts": {
+//     "Instagram": "Idea tailored to Reels, Carousels or Stories",
+//     "TikTok": "Short-form hook-based concept",
+//     "YouTube": "Video concept w/ title structure and value prop",
+//     "LinkedIn": "Thought-leadership angle",
+//     "X": "Thread or hot take concept",
+//     "Blog": "Long-form SEO article concept",
+//     "Threads": "Conversational community-driven idea"
+//   }
+// }
+
+// Rules:
+// - Must reflect 2025 trends
+// - Be specific, actionable, and non-generic
+// - Tailor ideas to each platform algorithm & audience
+// - Must return valid JSON only
+// `;
+
+//     try {
+//       const raw = await callGemini(prompt);
+
+//       // Strip accidental code fences
+//       const cleaned = raw.replace(/```json|```/g, "").trim();
+
+//       const jsonMatch = cleaned.match(/\{[\s\S]*\}$/);
+//       if (!jsonMatch) throw new Error("Gemini returned invalid JSON format");
+
+//       const data = JSON.parse(jsonMatch[0]);
+
+//       return {
+//         summary: data.summary,
+//         titleSuggestions: data.titleSuggestions,
+//         keyPoints: data.keyPoints,
+//         schedule: data.schedule,
+//         platformPosts: data.platformPosts,
+//       };
+//     } catch (error) {
+//       console.error("Content Planner Error:", error);
+//       throw new Error(
+//         `Failed to generate content plan: ${error instanceof Error ? error.message : "Unknown error"}. Please try again with a different topic or check your API configuration.`
+//       );
+//     }
+//   },
+// });

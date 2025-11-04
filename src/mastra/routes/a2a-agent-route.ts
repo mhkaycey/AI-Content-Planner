@@ -1,21 +1,64 @@
-// import { Message } from "@mastra/core/a2a";
 import { registerApiRoute } from "@mastra/core/server";
-import { randomUUID } from "node:crypto";
+import { randomUUID } from "crypto";
 
 export const a2aAgentRoute = registerApiRoute("/a2a/agent/:agentId", {
   method: "POST",
   handler: async (c) => {
     try {
       const mastra = c.get("mastra");
-
       const agentId = c.req.param("agentId");
-
-      // Parse JSON-RPC 2.0 request
 
       const body = await c.req.json();
       const { jsonrpc, id: requestId, method, params } = body;
 
-      // Validate JSON-RPC 2.0 format
+      if (!jsonrpc && !requestId && !method) {
+        const errorMessage = "Unknown method. Use 'message/send' or 'help'.";
+        const taskId = randomUUID();
+        const messageId = randomUUID();
+
+        return c.json(
+          {
+            jsonrpc: "2.0",
+            id: "",
+            result: {
+              id: taskId,
+              contextId: randomUUID(),
+              status: {
+                state: "failed",
+                timestamp: new Date().toISOString(),
+                message: {
+                  kind: "message",
+                  role: "agent",
+                  parts: [
+                    {
+                      kind: "text",
+                      text: errorMessage,
+                    },
+                  ],
+                  messageId: messageId,
+                  taskId: null,
+                  metadata: null,
+                },
+              },
+              artifacts: [
+                {
+                  artifactId: randomUUID(),
+                  name: "assistantResponse",
+                  parts: [
+                    {
+                      kind: "text",
+                      text: errorMessage,
+                    },
+                  ],
+                },
+              ],
+              history: [],
+              kind: "task",
+            },
+          },
+          200
+        );
+      }
 
       if (jsonrpc !== "2.0" || !requestId) {
         return c.json(
@@ -25,7 +68,7 @@ export const a2aAgentRoute = registerApiRoute("/a2a/agent/:agentId", {
             error: {
               code: -32600,
               message:
-                "Invalid Request: jsonrpc must be 2.0 and id is required",
+                'Invalid Request: jsonrpc must be "2.0" and id is required',
             },
           },
           400
@@ -39,15 +82,13 @@ export const a2aAgentRoute = registerApiRoute("/a2a/agent/:agentId", {
             jsonrpc: "2.0",
             id: requestId,
             error: {
-              code: -32601,
+              code: -32602,
               message: `Agent '${agentId}' not found`,
             },
           },
-          400
+          404
         );
       }
-
-      // Extract messages from params
 
       const { message, messages, contextId, taskId, metadata } = params || {};
 
@@ -58,7 +99,6 @@ export const a2aAgentRoute = registerApiRoute("/a2a/agent/:agentId", {
         messagesList = messages;
       }
 
-      // Convert A2A messages to Mastra format
       const mastraMessages = messagesList.map((msg) => ({
         role: msg.role,
         content:
@@ -71,52 +111,29 @@ export const a2aAgentRoute = registerApiRoute("/a2a/agent/:agentId", {
             .join("\n") || "",
       }));
 
-      // Execute agent
-
       const response = await agent.generate(mastraMessages);
       const agentText = response.text || "";
 
-      // const responseMessage = {
-      //   messageId: randomUUID(),
-      //   role: "agent",
-      //   parts: [
-      //     {
-      //       kind: "text",
-      //       text: agentText,
-      //     },
-      //   ],
-      //   kind: "message",
-      // };
-
-      // Convert Mastra response to A2A format and Build artifacts
       const artifacts = [
         {
           artifactId: randomUUID(),
           name: `${agentId}Response`,
-          parts: [
-            {
-              kind: "text",
-              text: agentText,
-            },
-          ],
+          parts: [{ kind: "text", text: agentText }],
         },
       ];
-
-      //add tool results as artifacts
 
       if (response.toolResults && response.toolResults.length > 0) {
         artifacts.push({
           artifactId: randomUUID(),
           name: "ToolResults",
-          //@ts-ignore
-          parts: response.toolResults.map((result) => ({
+          // @ts-ignore
+          parts: response.toolResults.map((result: any) => ({
             kind: "data",
             data: result,
           })),
         });
-
-        // console.log("tool results", response.toolResults);
       }
+
       // Build conversation history
       const history = [
         ...messagesList.map((msg) => ({
@@ -129,12 +146,7 @@ export const a2aAgentRoute = registerApiRoute("/a2a/agent/:agentId", {
         {
           kind: "message",
           role: "agent",
-          parts: [
-            {
-              kind: "text",
-              text: agentText,
-            },
-          ],
+          parts: [{ kind: "text", text: agentText }],
           messageId: randomUUID(),
           taskId: taskId || randomUUID(),
         },
@@ -144,30 +156,24 @@ export const a2aAgentRoute = registerApiRoute("/a2a/agent/:agentId", {
         jsonrpc: "2.0",
         id: requestId,
         result: {
-          id: taskId ?? randomUUID(),
-          contextId: contextId ?? randomUUID(),
+          id: taskId || randomUUID(),
+          contextId: contextId || randomUUID(),
           status: {
             state: "completed",
             timestamp: new Date().toISOString(),
             message: {
               messageId: randomUUID(),
               role: "agent",
-              parts: [
-                {
-                  kind: "text",
-                  text: agentText,
-                },
-              ],
+              parts: [{ kind: "text", text: agentText }],
               kind: "message",
             },
           },
-
-          history,
           artifacts,
+          history,
           kind: "task",
         },
       });
-    } catch (error) {
+    } catch (error: any) {
       return c.json(
         {
           jsonrpc: "2.0",
@@ -175,7 +181,7 @@ export const a2aAgentRoute = registerApiRoute("/a2a/agent/:agentId", {
           error: {
             code: -32603,
             message: "Internal error",
-            data: { details: error },
+            data: { details: error.message },
           },
         },
         500
