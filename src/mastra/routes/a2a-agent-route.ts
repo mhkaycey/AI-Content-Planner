@@ -147,7 +147,7 @@ export const a2aAgentRoute = registerApiRoute("/a2a/agent/:agentId", {
           id: taskId ?? randomUUID(),
           contextId: contextId ?? randomUUID(),
           status: {
-            status: "completed",
+            state: "completed",
             timestamp: new Date().toISOString(),
             message: {
               messageId: randomUUID(),
